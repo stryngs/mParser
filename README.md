@@ -1,9 +1,8 @@
 # mParser
 - Useful for visualizing port scans
- - Created for to help myself visualize masscan results
 - Creates statistics based off service --> port commonalities
- - Uses browser for GUI visualization
- - Uses SQL for text visualization
+  - Uses browser for GUI visualization
+  - Uses SQL for text visualization
 
 ### Summary
  - Parse and sort the XML results given from masscan
