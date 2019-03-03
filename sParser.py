@@ -1,7 +1,7 @@
 #!/usr/bin/python
 """
 Summary:
-    - Take the XML results given from masscan or nmap and parse
+    - Take the XML results given from (masscan || nmap) and parse
         - GUI visualization provided by Plotly Bubble chart
         - SQL visualization provided by sqlite3
     - Visualize the data in interesting ways as to find quirks and commonalities
@@ -11,7 +11,6 @@ Summary:
     - Interchangable with Python3 || Python2
 
 Future plans:
-    - nmap scans integration
     - Add other scan result XML import abilities
 """
 
@@ -31,17 +30,19 @@ import sys
 lHandler = list_handler.List()
 lHandler.list_pick()
 
-def pScan(args):
-    """Prettify scan results, useful for deciphering unknown xml scans"""
-    xml_handler.Xml(args.p)
 
-def vScan(args):
+
+def pScan(xHandler):
+    """Prettify scan results, useful for deciphering unknown xml scans"""
+    xHandler.pFy()
+
+def vScan(xHandler):
     """Visualize scan results"""
    ## Map out the XML
     try:
-        tree = etree.parse(args.v)
-        sqlFile = '.'.join(args.v.split('.')[:-1]) + '.sqlite3'
-        htmlFile = '.'.join(args.v.split('.')[:-1]) + '_'
+        tree = etree.parse(xHandler.xmlInput)
+        sqlFile = '.'.join(xHandler.xmlInput.split('.')[:-1]) + '.sqlite3'
+        htmlFile = '.'.join(xHandler.xmlInput.split('.')[:-1]) + '_'
     except:
         sys.exit(1)
     root = tree.getroot()
@@ -67,7 +68,7 @@ def vScan(args):
     con.commit()
 
     ## Generate scan info
-    scan = scan_handler.Scan(con, db, lHandler, root)
+    scan = scan_handler.Scan(con, db, lHandler, root, xHandler)
 
     ## Generate stats and closeout
     stats = stats_handler.Stats(db)
@@ -87,15 +88,17 @@ def vScan(args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description = 'mParser - Visualize massive scan data')
+    parser = argparse.ArgumentParser(description = 'scanParser - Visualize port scan data')
     group = parser.add_mutually_exclusive_group(required = True)
     group.add_argument('-v',
                        help = 'Visualize xml input file')
     group.add_argument('-p',
                        help = 'Prettify raw xml output from various scanners')
-    args = parser.parse_args()
+    args = parser.parse_args()    
     
     if args.v is not None:
-        vScan(args)
+        xHandler = xml_handler.Xml(args.v)
+        vScan(xHandler)
     if args.p is not None:
-        pScan(args)
+        xHandler = xml_handler.Xml(args.p)
+        pScan(xHandler)
