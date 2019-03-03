@@ -1,16 +1,18 @@
 #!/usr/bin/python
 """
 Summary:
-    - Take the XML results given from masscan and parse
+    - Take the XML results given from masscan or nmap and parse
         - GUI visualization provided by Plotly Bubble chart
         - SQL visualization provided by sqlite3
     - Visualize the data in interesting ways as to find quirks and commonalities
     - Uses the services list from Nmap for visualization points
+    - Prettifies XML scan results for better deciphering
     - Expandable to use other datasets as well
     - Interchangable with Python3 || Python2
 
 Future plans:
-    - Add nmap XML import abilities
+    - nmap scans integration
+    - Add other scan result XML import abilities
 """
 
 from lxml import etree
@@ -19,6 +21,8 @@ from lib import list_handler
 from lib import plot_handler
 from lib import scan_handler
 from lib import stats_handler
+from lib import xml_handler
+import argparse
 import os
 import sqlite3 as lite
 import sys
@@ -27,14 +31,18 @@ import sys
 lHandler = list_handler.List()
 lHandler.list_pick()
 
-if __name__ == '__main__':
-    ## Map out the XML
+def pScan(args):
+    """Prettify scan results, useful for deciphering unknown xml scans"""
+    xml_handler.Xml(args.p)
+
+def vScan(args):
+    """Visualize scan results"""
+   ## Map out the XML
     try:
-        tree = etree.parse(sys.argv[1])
-        sqlFile = '.'.join(sys.argv[1].split('.')[:-1]) + '.sqlite3'
-        htmlFile = '.'.join(sys.argv[1].split('.')[:-1]) + '_'
+        tree = etree.parse(args.v)
+        sqlFile = '.'.join(args.v.split('.')[:-1]) + '.sqlite3'
+        htmlFile = '.'.join(args.v.split('.')[:-1]) + '_'
     except:
-        print('Usage:\npython mParser <masscan results XML file>\n')
         sys.exit(1)
     root = tree.getroot()
     
@@ -42,7 +50,7 @@ if __name__ == '__main__':
     try:
         os.remove(sqlFile)
     except:
-        pass    
+        pass
     
     ## Setup the DB connections
     con = lite.connect(sqlFile)
@@ -73,6 +81,22 @@ if __name__ == '__main__':
     con.close()
 
     ## Plot the GUIs
-    plot_handler.Plotter(addrStats, htmlFile + 'byAddr', autoOpen = True)
-    plot_handler.Plotter(portStats, htmlFile + 'byPort', autoOpen = True)
-    plot_handler.Plotter(svcStats, htmlFile + 'bySvc', autoOpen = True)
+    plot_handler.Plotter(addrStats, htmlFile + 'byAddr.html', autoOpen = True)
+    plot_handler.Plotter(portStats, htmlFile + 'byPort.html', autoOpen = True)
+    plot_handler.Plotter(svcStats, htmlFile + 'bySvc.html', autoOpen = True)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description = 'mParser - Visualize massive scan data')
+    group = parser.add_mutually_exclusive_group(required = True)
+    group.add_argument('-v',
+                       help = 'Visualize xml input file')
+    group.add_argument('-p',
+                       help = 'Prettify raw xml output from various scanners')
+    args = parser.parse_args()
+    
+    if args.v is not None:
+        vScan(args)
+    
+    if args.p is not None:
+        pScan(args)
