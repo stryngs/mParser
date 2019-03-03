@@ -1,11 +1,11 @@
-# mParser
+# scanParser
 - Useful for visualizing port scans
 - Creates statistics based off service --> port commonalities
   - Uses browser for GUI visualization
   - Uses SQL for text visualization
 
 ### Summary
- - Parse and sort the XML results given from masscan
+ - Parse and sort the XML results given from masscan or nmap
    - GUI visualization provided by Plotly Bubble chart
     - Bubble charts are the default right now
    - SQL visualization provided by sqlite3
@@ -15,4 +15,4 @@
  - Interchangable with Python3 || Python2
 
 ### Future plans
- - Add nmap XML import abilities
+ - Increase parsing data points
