@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 """
 Summary:
     - Take the XML results given from (masscan || nmap) and parse
@@ -14,10 +14,6 @@ Future plans:
     - Add other scan result XML import abilities
 """
 
-import argparse
-import os
-import sys
-import sqlite3 as lite
 from lxml import etree
 from lib import db_handler
 from lib import list_handler
@@ -25,6 +21,10 @@ from lib import plot_handler
 from lib import scan_handler
 from lib import stats_handler
 from lib import xml_handler
+import argparse
+import os
+import sqlite3 as lite
+import sys
 
 ## Grab the port lists
 lHandler = list_handler.List()
@@ -96,10 +96,9 @@ if __name__ == '__main__':
                        help = 'Prettify raw xml output from various scanners')
     args = parser.parse_args()    
     
-    try:
+    if args.v is not None:
         xHandler = xml_handler.Xml(args.v)
         vScan(xHandler)
-    except NameError:
+    if args.p is not None:
         xHandler = xml_handler.Xml(args.p)
         pScan(xHandler)
-
