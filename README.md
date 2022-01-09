@@ -15,7 +15,6 @@
  - Visualize the data in interesting ways as to find quirks and commonalities
  - Uses the services list from Nmap for visualization points
  - Expandable to use other datasets as well
- - Interchangable with Python3 || Python2
 
 ### Future plans
  - Remove need for .xml extension for input
