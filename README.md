@@ -1,4 +1,6 @@
 # scanParser
+## Why
+- https://nmap.org/book/output-formats-output-to-database.html
 ### Concept
 - Useful for visualizing port scans
 - Creates statistics based off service --> port commonalities
