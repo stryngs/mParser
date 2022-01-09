@@ -7,9 +7,9 @@ class Stats(object):
     def by_addr(self):
         """Look at the data by IP address"""
         self.db.execute("""
-                        CREATE TABLE `by_addr`AS
+                        CREATE TABLE `by_ip`AS
                         SELECT COUNT(*) AS 'qty',
-                        IP.addr AS 'addr',
+                        IP.ip AS 'ips',
                         GROUP_CONCAT(DISTINCT(IP.protocol)) AS 'protocols',
                         GROUP_CONCAT(DISTINCT(IP.portid)) AS 'ports',
                         GROUP_CONCAT(DISTINCT(IP.`state`)) AS 'states',
@@ -19,10 +19,11 @@ class Stats(object):
                         GROUP_CONCAT(DISTINCT(SL.name)) AS 'services',
                         GROUP_CONCAT(DISTINCT(SL.freq)) AS 'freqs',
                         GROUP_CONCAT(DISTINCT(SL.cmt)) AS 'comments'
-                        FROM ip_list IP INNER JOIN svc_list SL 
-                        ON IP.portid = SL.port 
-                        WHERE IP.protocol = SL.proto 
-                        GROUP BY addr 
+                        FROM ip_list IP
+                        INNER JOIN svc_list SL
+                        ON IP.portid = SL.portid
+                        WHERE IP.protocol = SL.proto
+                        GROUP BY ip
                         ORDER BY 1 DESC;
                         """)
 
@@ -30,7 +31,7 @@ class Stats(object):
     def addrStats(self):
         """GUI for by addrs"""
         self.db.execute("""
-                        SELECT qty, addr from by_addr;
+                        SELECT qty, ips from by_ip;
                         """)
         return self.db.fetchall()
 
@@ -40,7 +41,7 @@ class Stats(object):
         self.db.execute("""
                         CREATE TABLE `by_port`AS
                         SELECT COUNT(*) AS 'qty',
-                        GROUP_CONCAT(DISTINCT(IP.addr)) AS 'addrs',
+                        GROUP_CONCAT(DISTINCT(IP.ip)) AS 'ips',
                         GROUP_CONCAT(DISTINCT(IP.protocol)) AS 'protocols',
                         IP.portid AS 'port',
                         GROUP_CONCAT(DISTINCT(IP.`state`)) AS 'states',
@@ -50,10 +51,10 @@ class Stats(object):
                         GROUP_CONCAT(DISTINCT(SL.name)) AS 'services',
                         GROUP_CONCAT(DISTINCT(SL.freq)) AS 'freqs',
                         GROUP_CONCAT(DISTINCT(SL.cmt)) AS 'comments'
-                        FROM ip_list IP INNER JOIN svc_list SL 
-                        ON IP.portid = SL.port 
-                        WHERE IP.protocol = SL.proto 
-                        GROUP BY port 
+                        FROM ip_list IP INNER JOIN svc_list SL
+                        ON IP.portid = SL.portid
+                        WHERE IP.protocol = SL.proto
+                        GROUP BY port
                         ORDER BY 1 DESC;
                         """)
 
@@ -71,7 +72,7 @@ class Stats(object):
         self.db.execute("""
                         CREATE TABLE `by_svc`AS
                         SELECT COUNT(*) AS 'qty',
-                        GROUP_CONCAT(DISTINCT(IP.addr)) AS 'addrs',
+                        GROUP_CONCAT(DISTINCT(IP.ip)) AS 'ips',
                         GROUP_CONCAT(DISTINCT(IP.protocol)) AS 'protocols',
                         GROUP_CONCAT(DISTINCT(IP.portid)) AS 'ports',
                         GROUP_CONCAT(DISTINCT(IP.`state`)) AS 'states',
@@ -82,9 +83,9 @@ class Stats(object):
                         GROUP_CONCAT(DISTINCT(SL.freq)) AS 'freqs',
                         GROUP_CONCAT(DISTINCT(SL.cmt)) AS 'comments'
                         FROM ip_list AS IP INNER JOIN svc_list SL
-                        ON IP.portid = SL.port
-                        WHERE IP.protocol = SL.proto 
-                        GROUP BY service 
+                        ON IP.portid = SL.portid
+                        WHERE IP.protocol = SL.proto
+                        GROUP BY service
                         ORDER BY 1 DESC;
                         """)
 
@@ -95,5 +96,3 @@ class Stats(object):
                         SELECT qty, service from by_svc;
                         """)
         return self.db.fetchall()
-
-

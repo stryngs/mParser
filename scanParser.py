@@ -1,5 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """
+Why:
+    - https://nmap.org/book/output-formats-output-to-database.html
+
 Summary:
     - Take the XML results given from (masscan || nmap) and parse
         - GUI visualization provided by Plotly Bubble chart
@@ -8,10 +11,6 @@ Summary:
     - Uses the services list from Nmap for visualization points
     - Prettifies XML scan results for better deciphering
     - Expandable to use other datasets as well
-    - Interchangable with Python3 || Python2
-
-Future plans:
-    - Add other scan result XML import abilities
 """
 
 from lxml import etree
@@ -30,8 +29,6 @@ import sys
 lHandler = list_handler.List()
 lHandler.list_pick()
 
-
-
 def pScan(xHandler):
     """Prettify scan results, useful for deciphering unknown xml scans"""
     xHandler.pFy()
@@ -46,13 +43,13 @@ def vScan(xHandler):
     except:
         sys.exit(1)
     root = tree.getroot()
-    
+
     ## prep
     try:
         os.remove(sqlFile)
     except:
         pass
-    
+
     ## Setup the DB connections
     con = lite.connect(sqlFile)
     con.text_factory = str
@@ -60,7 +57,7 @@ def vScan(xHandler):
 
     ## Be friendly to GUI SQL visualization
     db.execute("""CREATE TABLE `_` (`_` INTEGER)""")
-    
+
     ## Generate initial tables
     dBase = db_handler.Database(db)
     dBase.scan_prep()
@@ -69,6 +66,7 @@ def vScan(xHandler):
 
     ## Generate scan info
     scan = scan_handler.Scan(con, db, lHandler, root, xHandler)
+    con.commit()
 
     ## Generate stats and closeout
     stats = stats_handler.Stats(db)
@@ -94,8 +92,8 @@ if __name__ == '__main__':
                        help = 'Visualize xml input file')
     group.add_argument('-p',
                        help = 'Prettify raw xml output from various scanners')
-    args = parser.parse_args()    
-    
+    args = parser.parse_args()
+
     if args.v is not None:
         xHandler = xml_handler.Xml(args.v)
         vScan(xHandler)
